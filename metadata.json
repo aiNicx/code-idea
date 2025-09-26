@@ -1,0 +1,5 @@
+{
+  "name": "Code Idea Evolver Agent",
+  "description": "An AI-powered application that takes a user's initial project idea and iteratively refines it through a multi-step agentic loop, transforming a basic concept into a well-developed development plan.",
+  "requestFramePermissions": []
+}
