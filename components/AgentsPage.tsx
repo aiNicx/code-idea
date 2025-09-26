@@ -1,28 +1,30 @@
+
 import React, { useState } from 'react';
-import { AGENT_METADATA } from '../constants';
-import type { AgentName, Page, FlowStage } from '../types';
-import AgentCard from './AgentCard';
-import AgentFlowDiagram from './AgentFlowDiagram';
+import type { AgentName, Page } from '../types';
+import AgentLibrary from './agent-editor/AgentLibrary';
+import ConfigurationPanel from './agent-editor/ConfigurationPanel';
+import WorkflowVisualizer from './agent-editor/WorkflowVisualizer';
 
 interface AgentsPageProps {
   onNavigate: (page: Page) => void;
 }
 
 const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
-  const [highlightedStage, setHighlightedStage] = useState<FlowStage>(null);
+  const [selectedAgentName, setSelectedAgentName] = useState<AgentName | null>(null);
+  const [key, setKey] = useState(Date.now()); // Used to force-remount panel on reset
 
-  const allAgentNames = Object.keys(AGENT_METADATA) as AgentName[];
-  const executionAgents = allAgentNames.filter(
-    name => name !== 'OrchestratorAgent' && name !== 'DocumentGeneratorAgent'
-  );
-
+  const handleConfigChange = () => {
+    // Force a re-render of the library and panel to show "EDITED" status
+    setKey(Date.now());
+  };
+  
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 md:p-8">
-      <header className="mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div className="w-full h-full max-w-screen-2xl mx-auto p-4 md:p-6 flex flex-col">
+      <header className="flex-shrink-0 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-100">The Agentic Workflow</h1>
-          <p className="mt-2 text-lg text-gray-400">
-            An idea is transformed through a multi-step, collaborative AI process.
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-100">Agent Editor</h1>
+          <p className="mt-1 text-lg text-gray-400">
+            Inspect, configure, and test the AI agents that power your application.
           </p>
         </div>
         <button
@@ -36,26 +38,40 @@ const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
         </button>
       </header>
 
-      <AgentFlowDiagram onStageHover={setHighlightedStage} />
-      
-      <div className="mt-12 space-y-8">
-        <div>
-            <AgentCard agentName="OrchestratorAgent" highlightedStage={highlightedStage} />
-        </div>
-
-        <div>
-            <h2 className="text-2xl font-bold text-center text-gray-300 mb-6 pb-2 border-b-2 border-gray-700/50">
-                Core Execution Agents
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {executionAgents.map((agentName) => (
-                    <AgentCard key={agentName} agentName={agentName} highlightedStage={highlightedStage} />
-                ))}
-            </div>
+      <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
+        
+        {/* Left Column: Agent Library */}
+        <div className="lg:col-span-3 lg:h-full min-h-0">
+           <AgentLibrary 
+             key={key}
+             selectedAgentName={selectedAgentName} 
+             onSelectAgent={setSelectedAgentName} 
+            />
         </div>
         
-         <div>
-            <AgentCard agentName="DocumentGeneratorAgent" highlightedStage={highlightedStage} />
+        {/* Center Column: Workflow Visualization */}
+        <div className="lg:col-span-5 lg:h-full min-h-0">
+          <WorkflowVisualizer 
+            selectedAgentName={selectedAgentName}
+            onSelectAgent={setSelectedAgentName} 
+          />
+        </div>
+        
+        {/* Right Column: Configuration Panel */}
+        <div className="lg:col-span-4 lg:h-full min-h-0">
+           {selectedAgentName ? (
+              <ConfigurationPanel 
+                key={`${selectedAgentName}-${key}`}
+                agentName={selectedAgentName}
+                onConfigChange={handleConfigChange}
+             />
+           ) : (
+             <div className="bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-xl h-full flex flex-col items-center justify-center text-center p-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <h3 className="text-lg font-bold text-gray-300">Select an Agent</h3>
+                <p className="text-sm text-gray-500 mt-1">Choose an agent from the library to view and edit its configuration.</p>
+             </div>
+           )}
         </div>
 
       </div>

@@ -58,11 +58,24 @@ export type AgentName =
   | 'RoadmapAgent'
   | 'DocumentGeneratorAgent';
 
+// --- New Types for Enhanced Agent Configuration ---
+
+export type ToolName = 'DocumentationSearch' | 'AgentCaller';
+
+export interface ToolConfig {
+    id: ToolName;
+    enabled: boolean;
+    params?: {
+        allowedAgents?: AgentName[];
+    };
+}
+
 export interface AgentConfig {
   id: AgentName;
   systemPrompt: string;
   lastModified: string; // ISO string
   isCustom: boolean;
+  tools: ToolConfig[];
 }
 
 export interface DevelopmentPlan {
@@ -90,15 +103,11 @@ export type DevelopedIdea = { [key: string]: string };
 
 export type Page = 'home' | 'agents';
 
-// --- New Types for Enhanced Agent Metadata ---
-
-export type AgentTool = 'TechStackDocumentation';
-
 export interface AgentMetadata {
   role: string;
   icon: React.ComponentType<{ className?: string }>;
   summary: string;
-  tools: AgentTool[];
+  availableTools: ToolName[];
 }
 
 export type AgentMetadataCollection = Record<AgentName, AgentMetadata>;

@@ -1,7 +1,8 @@
-import type { Framework, Backend, Styling, UILibrary, StateManagement, Auth, Suggestion, DocumentType, AgentName, AgentMetadataCollection } from './types';
+import type { Framework, Backend, Styling, UILibrary, StateManagement, Auth, Suggestion, DocumentType, AgentName, AgentMetadataCollection, ToolName } from './types';
 import {
   OrchestratorIcon, ProjectBriefIcon, UserPersonaIcon, UserFlowIcon, DBSchemaIcon,
-  APIEndpointIcon, ComponentArchitectureIcon, TechRationaleIcon, RoadmapIcon, DocumentGeneratorIcon
+  APIEndpointIcon, ComponentArchitectureIcon, TechRationaleIcon, RoadmapIcon, DocumentGeneratorIcon,
+  DocSearchIcon, DelegateIcon
 } from './components/AgentIcons';
 
 export const FRAMEWORK_OPTIONS: Framework[] = ['React', 'Vue', 'Svelte'];
@@ -49,15 +50,15 @@ export const AGENT_SUB_TASKS: Record<AgentName, string[]> = {
     ],
     DBSchemaAgent: [
         "Analyzing data requirements...",
+        "Consulting tech documentation...",
         "Designing tables and collections...",
-        "Defining fields and data types...",
-        "Establishing relationships and indexes...",
+        "Establishing relationships...",
     ],
     APIEndpointAgent: [
         "Identifying necessary data operations...",
+        "Consulting tech documentation...",
         "Designing resource URLs...",
-        "Defining request/response shapes...",
-        "Planning authentication and authorization...",
+        "Planning request/response shapes...",
     ],
     ComponentArchitectureAgent: [
         "Breaking down the UI into logical blocks...",
@@ -85,66 +86,79 @@ export const AGENT_SUB_TASKS: Record<AgentName, string[]> = {
     ],
 };
 
+export const TOOLS_CATALOG: Record<ToolName, { name: string; description: string; icon: React.ComponentType<{className?: string}> }> = {
+    DocumentationSearch: {
+        name: 'Tech Documentation',
+        description: 'Allows the agent to access documentation for the selected tech stack.',
+        icon: DocSearchIcon,
+    },
+    AgentCaller: {
+        name: 'Delegate to Agent',
+        description: 'Allows the agent to call another specialized agent for a sub-task.',
+        icon: DelegateIcon,
+    }
+}
+
 export const AGENT_METADATA: AgentMetadataCollection = {
     OrchestratorAgent: {
         role: "Master Architect",
         icon: OrchestratorIcon,
         summary: "Analyzes the user's request and creates a dynamic, step-by-step execution plan for the other agents.",
-        tools: [],
+        availableTools: ['AgentCaller'],
     },
     ProjectBriefAgent: {
         role: "Product Manager",
         icon: ProjectBriefIcon,
         summary: "Refines the user's raw idea into a formal Project Brief, outlining the problem, solution, and core features.",
-        tools: [],
+        availableTools: [],
     },
     UserPersonaAgent: {
         role: "UX Researcher",
         icon: UserPersonaIcon,
         summary: "Creates detailed user personas to ensure the application is designed with the target audience in mind.",
-        tools: [],
+        availableTools: [],
     },
     UserFlowAgent: {
         role: "UX Designer",
         icon: UserFlowIcon,
         summary: "Designs the primary user journey, mapping out the step-by-step path a user takes to achieve a goal.",
-        tools: [],
+        availableTools: [],
     },
     DBSchemaAgent: {
         role: "Database Architect",
         icon: DBSchemaIcon,
         summary: "Designs the database structure, including tables, fields, and relationships, based on the project's data needs.",
-        tools: ['TechStackDocumentation'],
+        availableTools: ['DocumentationSearch'],
     },
     APIEndpointAgent: {
         role: "Backend Engineer",
         icon: APIEndpointIcon,
         summary: "Defines the API contract, specifying the endpoints, methods, and data shapes for frontend-backend communication.",
-        tools: ['TechStackDocumentation'],
+        availableTools: ['DocumentationSearch'],
     },
     ComponentArchitectureAgent: {
         role: "Frontend Architect",
         icon: ComponentArchitectureIcon,
         summary: "Breaks down the user interface into a logical hierarchy of reusable components.",
-        tools: [],
+        availableTools: [],
     },
     TechRationaleAgent: {
         role: "Solution Architect",
         icon: TechRationaleIcon,
         summary: "Writes a justification for the chosen technology stack, explaining why it's a good fit for the project.",
-        tools: [],
+        availableTools: [],
     },
     RoadmapAgent: {
         role: "Product Owner",
         icon: RoadmapIcon,
         summary: "Creates a high-level project roadmap, prioritizing features and organizing them into development phases.",
-        tools: [],
+        availableTools: [],
     },
     DocumentGeneratorAgent: {
         role: "Technical Writer",
         icon: DocumentGeneratorIcon,
         summary: "Assembles all the generated content from other agents into a final, structured set of project documents.",
-        tools: [],
+        availableTools: [],
     },
 };
 

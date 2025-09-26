@@ -1,29 +1,43 @@
-import type { AgentName, AgentConfig } from '../types';
+import type { AgentName, AgentConfig, ToolConfig } from '../types';
 import { AGENT_PROMPTS as defaultPrompts } from './prompts';
+import { AGENT_METADATA } from '../constants';
 
 const CONFIG_PREFIX = 'agent-config-';
 
 /**
  * Retrieves the configuration for a single agent.
  * It first checks localStorage for a custom configuration.
- * If not found, it returns the default configuration.
+ * If not found, it returns the default configuration, including generating a default toolset.
  */
 export function getAgentConfig(agentName: AgentName): AgentConfig {
   const storedConfig = localStorage.getItem(`${CONFIG_PREFIX}${agentName}`);
   if (storedConfig) {
     try {
-      return JSON.parse(storedConfig) as AgentConfig;
+      // Basic validation and migration for older configs
+      const parsed = JSON.parse(storedConfig) as AgentConfig;
+      if (!parsed.tools) {
+          parsed.tools = [];
+      }
+      return parsed;
     } catch (error) {
       console.error(`Failed to parse config for ${agentName}, using default.`, error);
     }
   }
 
-  // Return default config
+  // Generate default config
+  const metadata = AGENT_METADATA[agentName];
+  const defaultTools: ToolConfig[] = metadata.availableTools.map(toolId => ({
+    id: toolId,
+    enabled: toolId === 'DocumentationSearch', // Enable this tool by default where available
+    params: {},
+  }));
+
   return {
     id: agentName,
     systemPrompt: defaultPrompts[agentName],
     lastModified: new Date(0).toISOString(), // Epoch time for default
     isCustom: false,
+    tools: defaultTools,
   };
 }
 
@@ -32,7 +46,11 @@ export function getAgentConfig(agentName: AgentName): AgentConfig {
  */
 export function saveAgentConfig(config: AgentConfig): void {
   try {
-    const configToSave = { ...config, isCustom: true, lastModified: new Date().toISOString() };
+    const configToSave: AgentConfig = { 
+        ...config, 
+        isCustom: true, 
+        lastModified: new Date().toISOString() 
+    };
     localStorage.setItem(`${CONFIG_PREFIX}${config.id}`, JSON.stringify(configToSave));
   } catch (error) {
     console.error(`Failed to save config for ${config.id}.`, error);
@@ -53,9 +71,17 @@ export function resetAgentConfig(agentName: AgentName): void {
  */
 export function getEffectivePrompts(): Record<AgentName, string> {
   const allPrompts: Partial<Record<AgentName, string>> = {};
-  for (const agentName in defaultPrompts) {
-    const name = agentName as AgentName;
-    allPrompts[name] = getAgentConfig(name).systemPrompt;
+  const agentNames = Object.keys(defaultPrompts) as AgentName[];
+  for (const agentName of agentNames) {
+    allPrompts[agentName] = getAgentConfig(agentName).systemPrompt;
   }
   return allPrompts as Record<AgentName, string>;
+}
+
+/**
+ * Gets the configurations for all known agents.
+ */
+export function getAllAgentConfigs(): AgentConfig[] {
+    const agentNames = Object.keys(AGENT_METADATA) as AgentName[];
+    return agentNames.map(getAgentConfig);
 }
