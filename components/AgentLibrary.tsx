@@ -1,7 +1,7 @@
 import React from 'react';
-import type { AgentName } from '../../types';
-import { AGENT_METADATA } from '../../constants';
-import { getAllAgentConfigs } from '../../services/promptService';
+import type { AgentName } from '../types';
+import { AGENT_METADATA } from '../constants';
+import { getAllAgentConfigs } from '../services/promptService';
 
 interface AgentLibraryProps {
   selectedAgentName: AgentName | null;

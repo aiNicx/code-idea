@@ -1,4 +1,6 @@
 import type { AgentTask } from './services/geminiService';
+// FIX: Import ComponentType from react to be used for agent metadata icon type.
+import type { ComponentType } from 'react';
 
 export enum ProcessingState {
   IDLE = 'idle',
@@ -105,7 +107,8 @@ export type Page = 'home' | 'agents';
 
 export interface AgentMetadata {
   role: string;
-  icon: React.ComponentType<{ className?: string }>;
+  // FIX: Use ComponentType instead of React.ComponentType to resolve namespace error.
+  icon: ComponentType<{ className?: string }>;
   summary: string;
   availableTools: ToolName[];
 }

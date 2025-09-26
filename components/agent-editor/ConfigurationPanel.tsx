@@ -1,10 +1,11 @@
 
+
 import React, { useState } from 'react';
 import type { AgentName, AgentConfig } from '../../types';
 import { AGENT_METADATA } from '../../constants';
 import { getAgentConfig, saveAgentConfig, resetAgentConfig } from '../../services/promptService';
-import ToolManager from './ToolManager';
-import { InfoIcon, PromptIcon, ToolIcon, ResetIcon, SaveIcon } from './EditorIcons';
+import ToolManager from '../ToolManager';
+import { InfoIcon, PromptIcon, ToolIcon, ResetIcon, SaveIcon } from '../EditorIcons';
 
 
 interface ConfigurationPanelProps {

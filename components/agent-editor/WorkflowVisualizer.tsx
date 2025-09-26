@@ -13,39 +13,45 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ selectedAgentNa
   const executionAgents = allAgentNames.filter(
     name => name !== 'OrchestratorAgent' && name !== 'DocumentGeneratorAgent'
   );
-  
-  const stages = [
-    { title: 'Orchestration', agents: ['OrchestratorAgent' as AgentName] },
-    { title: 'Execution', agents: executionAgents },
-    { title: 'Assembly & Output', agents: ['DocumentGeneratorAgent' as AgentName] },
-  ];
 
   return (
     <div className="bg-gray-800/50 border border-gray-700 rounded-xl h-full flex flex-col">
       <header className="flex-shrink-0 p-4 border-b border-gray-700">
         <h2 className="text-lg font-bold text-gray-200">Agentic Workflow</h2>
-        <p className="text-sm text-gray-500">The high-level execution plan</p>
+        <p className="text-sm text-gray-500">A high-level view of the execution plan.</p>
       </header>
-      <div className="flex-grow p-4 space-y-4 overflow-y-auto">
-        {stages.map((stage, index) => (
-            <div key={stage.title}>
-                <div className="flex flex-col items-center">
-                    {index > 0 && <ArrowDown />}
-                    <StageCard title={stage.title} />
-                    <ArrowDown />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
-                    {stage.agents.map(agentName => (
-                        <AgentNode 
-                            key={agentName}
-                            agentName={agentName}
-                            isSelected={selectedAgentName === agentName}
-                            onClick={() => onSelectAgent(agentName)}
-                        />
-                    ))}
-                </div>
-            </div>
-        ))}
+      <div className="flex-grow p-6 flex flex-col items-center justify-around overflow-y-auto">
+        {/* Stage 1: Orchestration */}
+        <StageCard title="1. Orchestration" />
+        <AgentNode 
+            agentName="OrchestratorAgent"
+            isSelected={selectedAgentName === 'OrchestratorAgent'}
+            onClick={() => onSelectAgent('OrchestratorAgent')}
+        />
+        <ArrowDown />
+        
+        {/* Stage 2: Execution */}
+        <StageCard title="2. Execution" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2 w-full max-w-md">
+            {executionAgents.map(agentName => (
+                <AgentNode 
+                    key={agentName}
+                    agentName={agentName}
+                    isSelected={selectedAgentName === agentName}
+                    onClick={() => onSelectAgent(agentName)}
+                />
+            ))}
+        </div>
+
+        <ArrowDown />
+        
+        {/* Stage 3: Assembly */}
+        <StageCard title="3. Assembly & Output" />
+        <AgentNode 
+            agentName="DocumentGeneratorAgent"
+            isSelected={selectedAgentName === 'DocumentGeneratorAgent'}
+            onClick={() => onSelectAgent('DocumentGeneratorAgent')}
+        />
       </div>
     </div>
   );
@@ -53,13 +59,13 @@ const WorkflowVisualizer: React.FC<WorkflowVisualizerProps> = ({ selectedAgentNa
 
 
 const StageCard: React.FC<{title: string}> = ({ title }) => (
-    <div className="bg-gray-700/50 border border-gray-600 text-indigo-300 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full">
+    <div className="bg-gray-700 border border-gray-600 text-indigo-300 text-xs font-bold uppercase tracking-wider px-4 py-1.5 rounded-full my-2">
         {title}
     </div>
 );
 
 const ArrowDown: React.FC = () => (
-    <div className="h-4 w-px bg-gray-600 my-1" />
+    <div className="h-6 w-px bg-gray-600" />
 );
 
 const AgentNode: React.FC<{agentName: AgentName; isSelected: boolean; onClick: () => void}> = ({ agentName, isSelected, onClick }) => {
@@ -69,14 +75,17 @@ const AgentNode: React.FC<{agentName: AgentName; isSelected: boolean; onClick: (
     return (
         <button 
             onClick={onClick}
-            className={`p-3 w-full rounded-lg border flex items-center gap-3 transition-all duration-200 ${
+            className={`p-3 w-full rounded-lg border flex items-center gap-3 transition-all duration-200 text-left ${
                 isSelected 
-                ? 'bg-indigo-600/20 border-indigo-500 scale-105'
-                : 'bg-gray-800 border-gray-700 hover:bg-gray-700/70 hover:border-gray-600'
+                ? 'bg-indigo-600/20 border-indigo-500 scale-105 shadow-lg shadow-indigo-900/50'
+                : 'bg-gray-900/50 border-gray-700 hover:bg-gray-700/70 hover:border-gray-600'
             }`}
         >
-            <Icon className={`h-5 w-5 flex-shrink-0 ${isSelected ? 'text-indigo-400' : 'text-gray-500'}`} />
-            <span className={`text-sm font-semibold ${isSelected ? 'text-white' : 'text-gray-300'}`}>{agentName}</span>
+            <Icon className={`h-6 w-6 flex-shrink-0 ${isSelected ? 'text-indigo-400' : 'text-gray-500'}`} />
+            <div>
+                <span className={`text-sm font-semibold ${isSelected ? 'text-white' : 'text-gray-300'}`}>{agentName}</span>
+                <p className={`text-xs ${isSelected ? 'text-indigo-300' : 'text-gray-500'}`}>{metadata.role}</p>
+            </div>
         </button>
     )
 }

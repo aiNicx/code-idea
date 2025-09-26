@@ -1,4 +1,6 @@
 import type { Framework, Backend, Styling, UILibrary, StateManagement, Auth, Suggestion, DocumentType, AgentName, AgentMetadataCollection, ToolName } from './types';
+// FIX: Import ComponentType from react to be used for tool icon type.
+import type { ComponentType } from 'react';
 import {
   OrchestratorIcon, ProjectBriefIcon, UserPersonaIcon, UserFlowIcon, DBSchemaIcon,
   APIEndpointIcon, ComponentArchitectureIcon, TechRationaleIcon, RoadmapIcon, DocumentGeneratorIcon,
@@ -86,7 +88,8 @@ export const AGENT_SUB_TASKS: Record<AgentName, string[]> = {
     ],
 };
 
-export const TOOLS_CATALOG: Record<ToolName, { name: string; description: string; icon: React.ComponentType<{className?: string}> }> = {
+// FIX: Use ComponentType instead of React.ComponentType to resolve namespace error.
+export const TOOLS_CATALOG: Record<ToolName, { name: string; description: string; icon: ComponentType<{className?: string}> }> = {
     DocumentationSearch: {
         name: 'Tech Documentation',
         description: 'Allows the agent to access documentation for the selected tech stack.',

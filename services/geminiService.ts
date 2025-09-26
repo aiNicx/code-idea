@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { getDocumentation } from './prompts';
-import { getEffectivePrompts } from './promptService';
+import { getEffectivePrompts, getAgentConfig } from './promptService';
 import type { ProgressUpdate, TechStack, DevelopedIdea, DevelopmentPlan, DocumentType, AgentName } from '../types';
 
 if (!process.env.API_KEY) {
@@ -101,7 +101,14 @@ export async function developIdea(
       currentAgent: agentName,
     });
     
-    const documentation = getDocumentation(techStack, agentName);
+    // Get the agent's full configuration to check for enabled tools
+    const agentConfig = getAgentConfig(agentName);
+    
+    // Only provide documentation if the 'DocumentationSearch' tool is enabled
+    const documentation = agentConfig.tools.find(tool => tool.id === 'DocumentationSearch' && tool.enabled)
+        ? getDocumentation(techStack, agentName)
+        : 'Documentation access is disabled for this agent.';
+
     const planContext = JSON.stringify(plan, null, 2);
 
     const agentPrompt = AGENT_PROMPTS[agentName]
