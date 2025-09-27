@@ -1,4 +1,4 @@
-import type { TechStack, AgentName } from './types';
+import type { TechStack, AgentName } from '../types';
 
 const DOCUMENTATION = {
   backend: {
