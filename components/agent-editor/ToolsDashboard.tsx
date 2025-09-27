@@ -1,6 +1,9 @@
 import React from 'react';
 import { TOOLS_CATALOG } from '../../constants';
-import { getAllAgentConfigs } from '../../services/promptService';
+// Placeholder for legacy service
+const getAllAgentConfigs = () => {
+  return [];
+};
 import type { AgentName, ToolName } from '../../types';
 
 interface ToolsDashboardProps {
