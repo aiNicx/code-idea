@@ -1,6 +1,4 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { AgentName, AgentConfig } from '../../types';
 import { AGENT_METADATA } from '../../constants';
 import { getAgentConfig, saveAgentConfig, resetAgentConfig } from '../../services/promptService';
@@ -17,6 +15,7 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({ agentName, onCo
   const [config, setConfig] = useState<AgentConfig>(() => getAgentConfig(agentName));
   const [activeTab, setActiveTab] = useState<'info' | 'prompt' | 'tools'>('info');
   const [promptContent, setPromptContent] = useState(config.systemPrompt);
+  const [toolSaveStatus, setToolSaveStatus] = useState<'idle' | 'saved'>('idle');
 
   const metadata = AGENT_METADATA[agentName];
   const Icon = metadata.icon;
@@ -43,6 +42,12 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({ agentName, onCo
     saveAgentConfig(newConfig);
     setConfig(getAgentConfig(agentName));
     onConfigChange();
+
+    setToolSaveStatus('saved');
+    const timer = setTimeout(() => {
+        setToolSaveStatus('idle');
+    }, 3000);
+    return () => clearTimeout(timer);
   };
 
   const renderTabContent = () => {
@@ -96,21 +101,30 @@ const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({ agentName, onCo
       <div className="flex-grow overflow-y-auto flex flex-col">{renderTabContent()}</div>
 
       {/* Footer / Actions */}
-      <footer className="flex-shrink-0 flex items-center justify-end gap-3 p-3 border-t border-gray-700 bg-gray-800/30">
-        {config.isCustom && (
-          <button onClick={handleReset} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-red-300 bg-red-900/50 rounded-md hover:bg-red-800/50 transition-colors">
-            <ResetIcon className="h-4 w-4" />
-            Reset to Default
-          </button>
-        )}
-        <button 
-          onClick={handleSave} 
-          disabled={!isPromptDirty}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-        >
-            <SaveIcon className="h-5 w-5" />
-            Save Prompt
-        </button>
+      <footer className="flex-shrink-0 flex items-center justify-between gap-3 p-3 border-t border-gray-700 bg-gray-800/30">
+        <div className="transition-opacity duration-300 h-6">
+             {toolSaveStatus === 'saved' && (
+                <p className="text-sm text-green-400 flex items-center gap-2">
+                    ✅ Tool settings saved automatically.
+                </p>
+            )}
+        </div>
+        <div className="flex items-center gap-3">
+            {config.isCustom && (
+              <button onClick={handleReset} className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-red-300 bg-red-900/50 rounded-md hover:bg-red-800/50 transition-colors">
+                <ResetIcon className="h-4 w-4" />
+                Reset to Default
+              </button>
+            )}
+            <button 
+              onClick={handleSave} 
+              disabled={!isPromptDirty}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
+            >
+                <SaveIcon className="h-5 w-5" />
+                Save Prompt
+            </button>
+        </div>
       </footer>
     </div>
   );

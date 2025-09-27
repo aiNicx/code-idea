@@ -1,6 +1,6 @@
-import type { AgentName, AgentConfig, ToolConfig } from '../types';
+import type { AgentName, AgentConfig, ToolConfig, ToolName } from '../types';
 import { AGENT_PROMPTS as defaultPrompts } from './prompts';
-import { AGENT_METADATA } from '../constants';
+import { AGENT_METADATA, TOOLS_CATALOG } from '../constants';
 
 const CONFIG_PREFIX = 'agent-config-';
 
@@ -11,12 +11,23 @@ const CONFIG_PREFIX = 'agent-config-';
  */
 export function getAgentConfig(agentName: AgentName): AgentConfig {
   const storedConfig = localStorage.getItem(`${CONFIG_PREFIX}${agentName}`);
+  const allToolIds = Object.keys(TOOLS_CATALOG) as ToolName[];
+
   if (storedConfig) {
     try {
-      // Basic validation and migration for older configs
       const parsed = JSON.parse(storedConfig) as AgentConfig;
+
       if (!parsed.tools) {
           parsed.tools = [];
+      }
+      
+      // Migration logic: Ensure all known tools are present in the config.
+      // This adds new tools to existing configs as disabled by default.
+      const existingToolIds = new Set(parsed.tools.map(t => t.id));
+      for (const toolId of allToolIds) {
+          if (!existingToolIds.has(toolId)) {
+              parsed.tools.push({ id: toolId, enabled: false });
+          }
       }
       return parsed;
     } catch (error) {
@@ -26,10 +37,9 @@ export function getAgentConfig(agentName: AgentName): AgentConfig {
 
   // Generate default config
   const metadata = AGENT_METADATA[agentName];
-  const defaultTools: ToolConfig[] = metadata.availableTools.map(toolId => ({
+  const defaultTools: ToolConfig[] = allToolIds.map(toolId => ({
     id: toolId,
-    enabled: toolId === 'DocumentationSearch', // Enable this tool by default where available
-    params: {},
+    enabled: metadata.defaultTools.includes(toolId),
   }));
 
   return {
@@ -49,39 +59,43 @@ export function saveAgentConfig(config: AgentConfig): void {
     const configToSave: AgentConfig = { 
         ...config, 
         isCustom: true, 
-        lastModified: new Date().toISOString() 
+        lastModified: new Date().toISOString()
     };
     localStorage.setItem(`${CONFIG_PREFIX}${config.id}`, JSON.stringify(configToSave));
   } catch (error) {
     console.error(`Failed to save config for ${config.id}.`, error);
-    alert('Could not save prompt. Your browser storage might be full.');
   }
 }
 
 /**
- * Resets an agent's configuration by removing it from localStorage.
+ * Resets an agent's configuration to its default state.
+ * This is done by removing its custom configuration from localStorage.
  */
 export function resetAgentConfig(agentName: AgentName): void {
-  localStorage.removeItem(`${CONFIG_PREFIX}${agentName}`);
+    try {
+        localStorage.removeItem(`${CONFIG_PREFIX}${agentName}`);
+    } catch (error) {
+        console.error(`Failed to reset config for ${agentName}.`, error);
+    }
 }
 
 /**
- * Gets a simple map of agent names to their effective system prompts.
- * This is used by the core logic to run the agents.
- */
-export function getEffectivePrompts(): Record<AgentName, string> {
-  const allPrompts: Partial<Record<AgentName, string>> = {};
-  const agentNames = Object.keys(defaultPrompts) as AgentName[];
-  for (const agentName of agentNames) {
-    allPrompts[agentName] = getAgentConfig(agentName).systemPrompt;
-  }
-  return allPrompts as Record<AgentName, string>;
-}
-
-/**
- * Gets the configurations for all known agents.
+ * Retrieves all agent configurations.
  */
 export function getAllAgentConfigs(): AgentConfig[] {
-    const agentNames = Object.keys(AGENT_METADATA) as AgentName[];
-    return agentNames.map(getAgentConfig);
+    const allAgentNames = Object.keys(AGENT_METADATA) as AgentName[];
+    return allAgentNames.map(getAgentConfig);
+}
+
+/**
+ * Gets the effective prompts for all agents,
+ * considering any user customizations from localStorage.
+ */
+export function getEffectivePrompts(): Record<AgentName, string> {
+    const allConfigs = getAllAgentConfigs();
+    const prompts: Partial<Record<AgentName, string>> = {};
+    for (const config of allConfigs) {
+        prompts[config.id] = config.systemPrompt;
+    }
+    return prompts as Record<AgentName, string>;
 }

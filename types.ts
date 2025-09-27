@@ -68,7 +68,10 @@ export interface ToolConfig {
     id: ToolName;
     enabled: boolean;
     params?: {
+        // For AgentCaller
         allowedAgents?: AgentName[];
+        // For DocumentationSearch
+        documentationIds?: string[];
     };
 }
 
@@ -110,9 +113,16 @@ export interface AgentMetadata {
   // FIX: Use ComponentType instead of React.ComponentType to resolve namespace error.
   icon: ComponentType<{ className?: string }>;
   summary: string;
-  availableTools: ToolName[];
+  defaultTools: ToolName[];
 }
 
 export type AgentMetadataCollection = Record<AgentName, AgentMetadata>;
 
 export type FlowStage = 'input' | 'orchestration' | 'execution' | 'assembly' | 'output' | null;
+
+export interface DocumentationSource {
+    id: string;
+    title: string;
+    content: string;
+    lastModified: string;
+}

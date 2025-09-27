@@ -4,6 +4,7 @@ import AgentLibrary from './AgentLibrary';
 import ConfigurationPanel from './agent-editor/ConfigurationPanel';
 import WorkflowVisualizer from './agent-editor/WorkflowVisualizer';
 import ToolsDashboard from './agent-editor/ToolsDashboard';
+import DocumentationToolManager from './agent-editor/DocumentationToolManager';
 
 interface AgentsPageProps {
   onNavigate: (page: Page) => void;
@@ -25,11 +26,12 @@ const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => voi
 
 const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
   const [selectedAgentName, setSelectedAgentName] = useState<AgentName | null>(null);
-  const [key, setKey] = useState(Date.now()); // Used to force-remount panel on reset
+  const [key, setKey] = useState(Date.now()); // Used to force-remount library to show "EDITED"
   const [activeTab, setActiveTab] = useState<'workflow' | 'tools'>('workflow');
+  const [isDocManagerOpen, setIsDocManagerOpen] = useState(false);
 
   const handleConfigChange = () => {
-    // Force a re-render of the library and panel to show "EDITED" status
+    // Force a re-render of the library to show "EDITED" status
     setKey(Date.now());
   };
   
@@ -90,7 +92,7 @@ const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
           <div className="lg:col-span-4 lg:h-full min-h-0">
              {selectedAgentName ? (
                 <ConfigurationPanel 
-                  key={`${selectedAgentName}-${key}`}
+                  key={selectedAgentName}
                   agentName={selectedAgentName}
                   onConfigChange={handleConfigChange}
                />
@@ -107,8 +109,18 @@ const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
 
       {activeTab === 'tools' && (
          <div className="flex-grow min-h-0">
-            <ToolsDashboard onSelectAgent={handleSelectAgentAndSwitch} />
+            <ToolsDashboard 
+                onSelectAgent={handleSelectAgentAndSwitch} 
+                onManageDocs={() => setIsDocManagerOpen(true)}
+            />
          </div>
+      )}
+
+      {isDocManagerOpen && (
+        <DocumentationToolManager
+          isOpen={isDocManagerOpen}
+          onClose={() => setIsDocManagerOpen(false)}
+        />
       )}
     </div>
   );

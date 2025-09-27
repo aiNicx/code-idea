@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { getDocumentation } from './prompts';
 import { getEffectivePrompts, getAgentConfig } from './promptService';
+import { getDocumentationSources } from './documentationService';
 import type { ProgressUpdate, TechStack, DevelopedIdea, DevelopmentPlan, DocumentType, AgentName } from '../types';
 
 if (!process.env.API_KEY) {
@@ -104,10 +105,35 @@ export async function developIdea(
     // Get the agent's full configuration to check for enabled tools
     const agentConfig = getAgentConfig(agentName);
     
-    // Only provide documentation if the 'DocumentationSearch' tool is enabled
-    const documentation = agentConfig.tools.find(tool => tool.id === 'DocumentationSearch' && tool.enabled)
-        ? getDocumentation(techStack, agentName)
-        : 'Documentation access is disabled for this agent.';
+    // Check if DocumentationSearch tool is enabled and assemble documentation
+    const docSearchTool = agentConfig.tools.find(tool => tool.id === 'DocumentationSearch' && tool.enabled);
+    let documentation = 'Documentation access is disabled for this agent.';
+    if (docSearchTool) {
+        const docParts: string[] = [];
+        
+        // 1. Get standard tech docs
+        const techDocs = getDocumentation(techStack, agentName);
+        if (techDocs && techDocs !== 'No specific documentation provided for this task.') {
+            docParts.push(techDocs);
+        }
+
+        // 2. Get selected custom docs
+        const allowedDocIds = docSearchTool.params?.documentationIds || [];
+        if (allowedDocIds.length > 0) {
+            const allCustomDocs = getDocumentationSources();
+            const selectedDocsContent = allCustomDocs
+                .filter(doc => allowedDocIds.includes(doc.id))
+                .map(doc => `--- CUSTOM DOCUMENTATION: "${doc.title}" ---\n${doc.content}`)
+                .join('\n\n');
+            
+            if (selectedDocsContent) {
+                docParts.push(selectedDocsContent);
+            }
+        }
+
+        documentation = docParts.length > 0 ? docParts.join('\n\n---\n\n') : 'No documentation available for this task.';
+    }
+
 
     const planContext = JSON.stringify(plan, null, 2);
 
