@@ -249,6 +249,7 @@ src/services/documentation/
 5. **FASE 5** - Testing e qualità
 6. **FASE 6** - Documentazione completa
 7. **FASE 7** - Ottimizzazioni finali
+8. **FASE 8** - Aggiorna @RIASSUNTO.md e README.md
 
 **Dipendenze**: Ogni fase dipende dal completamento della precedente
 **Rollback**: Possibile in ogni fase con git branches
