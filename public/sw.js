@@ -220,7 +220,7 @@ function openDB() {
     request.onsuccess = () => resolve(request.result);
 
     request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
+      const db = event.target.result;
       if (!db.objectStoreNames.contains('pendingRequests')) {
         db.createObjectStore('pendingRequests', { keyPath: 'id', autoIncrement: true });
       }
@@ -230,7 +230,7 @@ function openDB() {
 
 async function getStoredRequests() {
   try {
-    const db = await openDB() as IDBDatabase;
+    const db = await openDB();
     const transaction = db.transaction(['pendingRequests'], 'readonly');
     const store = transaction.objectStore('pendingRequests');
 
@@ -247,7 +247,7 @@ async function getStoredRequests() {
 
 async function removeStoredRequest(id) {
   try {
-    const db = await openDB() as IDBDatabase;
+    const db = await openDB();
     const transaction = db.transaction(['pendingRequests'], 'readwrite');
     const store = transaction.objectStore('pendingRequests');
 
