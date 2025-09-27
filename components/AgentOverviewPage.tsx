@@ -14,7 +14,7 @@ const AgentOverviewPage: React.FC<AgentOverviewPageProps> = ({ onNavigate, onSel
 
   useEffect(() => {
     const loadConfigs = async () => {
-      const configs: Record<AgentName, any> = {};
+      const configs = {} as Record<AgentName, any>;
       for (const agentName of Object.keys(AGENT_METADATA) as AgentName[]) {
         try {
           const config = await getAgentConfig(agentName);

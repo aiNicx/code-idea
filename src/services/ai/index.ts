@@ -103,6 +103,11 @@ export {
 // Types
 export * from './types';
 
+// Import agentExecutor for internal use
+import { agentExecutor } from './core/agentExecutor';
+import type { AgentExecutionResult, AgentObserver, AgentProgressEvent } from './types';
+import type { AgentName } from '../../../types';
+
 // Re-export delle interfacce principali per retrocompatibilità
 export type {
   AgentTask,
@@ -140,31 +145,41 @@ export async function developIdea(
       requestedDocuments
     };
 
+    // Crea i task per gli agenti richiesti
+    const tasks = requestedDocuments.map(docType => {
+      const agentName = getAgentForDocument(docType);
+      return {
+        agent: agentName,
+        input: planContext,
+        id: `${agentName}_${Date.now()}`
+      } as any;
+    });
+
     // Esegue l'orchestrazione
-    const results = await agentExecutor.executePlan(planContext);
+    const results = await agentExecutor.executeSequential(tasks, planContext);
 
     // Converte i risultati nel formato legacy
     const finalResult: DevelopedIdea = {
       idea: initialIdea,
-      techStack,
+      techStack: JSON.stringify(techStack),
       documents: results.reduce((docs, result) => {
-        if (result.success && result.output) {
+        if (result.success && result.result) {
           // Determina il tipo di documento dal risultato
           const docType = determineDocumentType(result.agentName);
           if (docType && requestedDocuments.includes(docType)) {
             const fileName = getFileNameForDocument(docType);
-            docs[fileName] = result.output;
+            docs[fileName] = result.result!;
           }
         }
         return docs;
-      }, {} as Record<string, string>)
+      }, {} as any)
     };
 
     const agentTasks = results.map(result => ({
       agent: result.agentName,
       status: result.success ? 'completed' : 'failed',
-      output: result.output,
-      error: result.error?.message
+      output: result.result,
+      error: result.error
     }));
 
     return { finalResult, agentTasks };
@@ -218,6 +233,24 @@ class LegacyProgressObserver implements AgentObserver {
   onError(error: Error): void {
     throw error;
   }
+}
+
+/**
+ * Mappa documenti ad agenti
+ */
+function getAgentForDocument(document: DocumentType): AgentName | null {
+  const mapping: Record<DocumentType, AgentName> = {
+    projectBrief: 'ProjectBriefAgent',
+    userPersonas: 'UserPersonaAgent',
+    userFlow: 'UserFlowAgent',
+    dbSchema: 'DBSchemaAgent',
+    apiEndpoints: 'APIEndpointAgent',
+    componentArchitecture: 'ComponentArchitectureAgent',
+    techRationale: 'TechRationaleAgent',
+    projectRoadmap: 'RoadmapAgent'
+  };
+
+  return mapping[document] || null;
 }
 
 /**

@@ -5,7 +5,7 @@ import ProcessingStatus from './components/ProcessingStatus';
 import ResultDisplay from './components/ResultDisplay';
 import AgentsPage from './components/AgentsPage';
 import AgentOverviewPage from './components/AgentOverviewPage';
-import { developIdea, aiService } from './src/services';
+import { developIdea } from './src/services';
 import { ProcessingState } from './types';
 import type { ProgressUpdate, TechStack, DevelopedIdea, DocumentType, Page, AgentName } from './types';
 
