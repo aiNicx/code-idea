@@ -1,4 +1,10 @@
-import type { AgentTask } from './services/geminiService';
+// AgentTask is now defined locally
+export interface AgentTask {
+  agent: AgentName;
+  goal: string;
+  focus: string;
+}
+
 // FIX: Import ComponentType from react to be used for agent metadata icon type.
 import type { ComponentType } from 'react';
 
@@ -48,7 +54,7 @@ export const documentTypes = [
 
 export type DocumentType = typeof documentTypes[number];
 
-export type AgentName = 
+export type AgentName =
   | 'OrchestratorAgent'
   | 'ProjectBriefAgent'
   | 'UserPersonaAgent'
@@ -58,7 +64,9 @@ export type AgentName =
   | 'ComponentArchitectureAgent'
   | 'TechRationaleAgent'
   | 'RoadmapAgent'
-  | 'DocumentGeneratorAgent';
+  | 'DocumentGeneratorAgent'
+  | 'AgentExecutor'
+  | 'ApiClient';
 
 // --- New Types for Enhanced Agent Configuration ---
 

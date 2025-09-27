@@ -1,11 +1,67 @@
 import type { Framework, Backend, Styling, UILibrary, StateManagement, Auth, Suggestion, DocumentType, AgentName, AgentMetadataCollection, ToolName } from './types';
 // FIX: Import ComponentType from react to be used for tool icon type.
 import type { ComponentType } from 'react';
+
+// Configurazione modelli per provider
+export const MODEL_CONFIG = {
+  gemini: {
+    'gemini-2.5-flash': {
+      name: 'Gemini 2.5 Flash',
+      provider: 'gemini',
+      maxTokens: 8192,
+      description: 'Modello veloce e conveniente per la generazione di codice'
+    }
+  },
+  openrouter: {
+    'x-ai/grok-4-fast:free': {
+      name: 'Grok 4 Fast (Free)',
+      provider: 'openrouter',
+      maxTokens: 8192,
+      description: 'Modello veloce e gratuito di xAI ottimizzato per codice'
+    },
+    'anthropic/claude-3.5-sonnet': {
+      name: 'Claude 3.5 Sonnet',
+      provider: 'openrouter',
+      maxTokens: 8192,
+      description: 'Modello avanzato di Anthropic ottimizzato per codice'
+    },
+    'anthropic/claude-3-haiku': {
+      name: 'Claude 3 Haiku',
+      provider: 'openrouter',
+      maxTokens: 4096,
+      description: 'Modello veloce di Anthropic per task semplici'
+    },
+    'openai/gpt-4o': {
+      name: 'GPT-4o',
+      provider: 'openrouter',
+      maxTokens: 8192,
+      description: 'Modello avanzato di OpenAI ottimizzato per codice'
+    },
+    'openai/gpt-4o-mini': {
+      name: 'GPT-4o Mini',
+      provider: 'openrouter',
+      maxTokens: 4096,
+      description: 'Versione economica di GPT-4o'
+    },
+    'google/gemini-2.5-flash': {
+      name: 'Gemini 2.5 Flash (via OpenRouter)',
+      provider: 'openrouter',
+      maxTokens: 8192,
+      description: 'Gemini 2.5 Flash attraverso OpenRouter'
+    }
+  }
+} as const;
+
+export type ModelId = keyof typeof MODEL_CONFIG.gemini | keyof typeof MODEL_CONFIG.openrouter;
 import {
   OrchestratorIcon, ProjectBriefIcon, UserPersonaIcon, UserFlowIcon, DBSchemaIcon,
   APIEndpointIcon, ComponentArchitectureIcon, TechRationaleIcon, RoadmapIcon, DocumentGeneratorIcon,
   DocSearchIcon, DelegateIcon
 } from './components/AgentIcons';
+
+// Temporary aliases for missing icons
+const AgentExecutorIcon = OrchestratorIcon;
+const ApiClientIcon = APIEndpointIcon;
 
 export const FRAMEWORK_OPTIONS: Framework[] = ['React', 'Vue', 'Svelte'];
 export const BACKEND_OPTIONS: Backend[] = ['Convex', 'Firebase', 'Supabase', 'Node.js (Express)', 'None'];
@@ -86,6 +142,18 @@ export const AGENT_SUB_TASKS: Record<AgentName, string[]> = {
         "Assembling the final JSON output...",
         "Final verification of the file structure...",
     ],
+    AgentExecutor: [
+        "Coordinating agent execution...",
+        "Managing parallel processing...",
+        "Monitoring progress and errors...",
+        "Aggregating results...",
+    ],
+    ApiClient: [
+        "Handling API communication...",
+        "Managing authentication...",
+        "Processing requests and responses...",
+        "Error handling and retries...",
+    ],
 };
 
 // FIX: Use ComponentType instead of React.ComponentType to resolve namespace error.
@@ -161,6 +229,18 @@ export const AGENT_METADATA: AgentMetadataCollection = {
         role: "Technical Writer",
         icon: DocumentGeneratorIcon,
         summary: "Assembles all the generated content from other agents into a final, structured set of project documents.",
+        defaultTools: [],
+    },
+    AgentExecutor: {
+        role: "Process Coordinator",
+        icon: AgentExecutorIcon,
+        summary: "Manages the parallel execution of multiple agents, coordinating their work and aggregating results.",
+        defaultTools: [],
+    },
+    ApiClient: {
+        role: "Communication Layer",
+        icon: ApiClientIcon,
+        summary: "Handles all communication with external APIs, managing authentication, requests, and responses.",
         defaultTools: [],
     },
 };

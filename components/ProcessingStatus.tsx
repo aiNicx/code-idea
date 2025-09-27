@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import type { ProgressUpdate, AgentName } from '../types';
-import type { AgentTask } from '../services/geminiService';
+// Placeholder for legacy type
+interface AgentTask {
+  agent: string;
+  goal: string;
+  focus: string;
+}
 import { AGENT_SUB_TASKS } from '../constants';
 
 interface ProcessingStatusProps {

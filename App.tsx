@@ -4,7 +4,8 @@ import IdeaForm from './components/IdeaForm';
 import ProcessingStatus from './components/ProcessingStatus';
 import ResultDisplay from './components/ResultDisplay';
 import AgentsPage from './components/AgentsPage';
-import { developIdea } from './services/geminiService';
+import { developIdea } from './src/services/aiService';
+import { aiService } from './src/services/aiService';
 import { ProcessingState } from './types';
 import type { ProgressUpdate, TechStack, DevelopedIdea, DocumentType, Page } from './types';
 

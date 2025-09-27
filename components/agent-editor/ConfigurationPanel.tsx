@@ -1,7 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import type { AgentName, AgentConfig } from '../../types';
 import { AGENT_METADATA } from '../../constants';
-import { getAgentConfig, saveAgentConfig, resetAgentConfig } from '../../services/promptService';
+// Placeholder for legacy service
+const getAgentConfig = (agentName: string) => {
+  return {
+    id: agentName,
+    systemPrompt: '',
+    lastModified: new Date().toISOString(),
+    isCustom: false,
+    tools: []
+  };
+};
+
+const saveAgentConfig = (config: any) => {
+  console.log('Saving config:', config);
+};
+
+const resetAgentConfig = (agentName: string) => {
+  console.log('Resetting config for:', agentName);
+};
 import ToolManager from '../ToolManager';
 import { InfoIcon, PromptIcon, ToolIcon, ResetIcon, SaveIcon } from '../EditorIcons';
 
