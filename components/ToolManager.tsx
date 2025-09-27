@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { AgentConfig, ToolConfig, DocumentationSource, ToolName } from '../types';
 import { TOOLS_CATALOG } from '../constants';
-import { getDocumentationSources } from '../services/documentationService';
+import { getDocumentationSources } from '../src/services/documentationService';
 
 interface ToolManagerProps {
     agentConfig: AgentConfig;

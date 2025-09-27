@@ -93,7 +93,8 @@ export const DocSearchIcon: React.FC<IconProps> = ({ className }) => (
 
 export const DelegateIcon: React.FC<IconProps> = ({ className }) => (
   <svg xmlns="http://www.w3.org/2000/svg" className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M17 11h- контекстная реклама-4v4" />
+    {/* Correzione: rimozione caratteri corrotti, path corretta per una freccia delega */}
+    <path d="M17 11h-4v4" />
     <path d="m7 13 4 4-4 4" />
     <path d="M20.5 13.5A7.5 7.5 0 0 0 7.1 9.5" />
     <path d="M3.5 10.5a7.5 7.5 0 0 0 13.4 4" />

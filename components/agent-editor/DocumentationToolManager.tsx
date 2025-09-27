@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { DocumentationSource } from '../../types';
-import { getDocumentationSources, saveDocumentationSource, deleteDocumentationSource } from '../../services/documentationService';
+import { getDocumentationSources, saveDocumentationSource, deleteDocumentationSource } from '../../src/services/documentationService';
 
 interface DocumentationToolManagerProps {
     isOpen: boolean;
