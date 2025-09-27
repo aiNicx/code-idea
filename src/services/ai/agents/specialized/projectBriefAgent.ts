@@ -4,8 +4,8 @@
  */
 
 import { apiClient } from '../../core/apiClient';
-import { getDocumentation, getDocumentationSources } from '../../../documentationService';
 import type { AgentExecutionContext } from '../../types';
+import { serviceLocator, SERVICE_KEYS } from '../../../serviceLocator';
 
 /**
  * Interfaccia per l'agente Project Brief
@@ -97,7 +97,8 @@ export class ProjectBriefAgent implements IProjectBriefAgent {
 
     try {
       // Carica la documentazione tecnica
-      const techDocs = getDocumentation(context.techStack, 'ProjectBriefAgent');
+      const documentationService = serviceLocator.get<any>('documentation');
+      const techDocs = await documentationService.getDocumentation(context.techStack, 'ProjectBriefAgent');
       if (techDocs && techDocs !== 'No specific documentation provided for this task.') {
         docParts.push(techDocs);
       }
@@ -107,7 +108,7 @@ export class ProjectBriefAgent implements IProjectBriefAgent {
       const docSearchTool = agentConfig?.tools?.find(tool => tool.id === 'DocumentationSearch' && tool.enabled);
 
       if (docSearchTool?.params?.documentationIds?.length) {
-        const allCustomDocs = getDocumentationSources();
+        const allCustomDocs = await documentationService.getDocumentationSources();
         const selectedDocsContent = allCustomDocs
           .filter(doc => docSearchTool.params!.documentationIds!.includes(doc.id))
           .map(doc => `--- CUSTOM DOCUMENTATION: "${doc.title}" ---\n${doc.content}`)
@@ -212,11 +213,37 @@ ${data.coreFeatures.map((feature: string) => `- ${feature}`).join('\n')}
   }
 
   /**
-   * Carica la configurazione dell'agente (placeholder per ora)
+   * Carica la configurazione dell'agente
+   * Implementazione base con configurazione di default espandibile
    */
   private async getAgentConfig(agentName: string): Promise<any> {
-    // TODO: Implementare configurazione agente modulare
-    return null;
+    // Configurazione base placeholder funzionale
+    // In futuro questa sarà sostituita da un sistema di configurazione modulare completo
+    const baseConfig = {
+      agentName,
+      version: '1.0.0',
+      capabilities: {
+        projectBrief: {
+          enabled: true,
+          maxTokens: 2000,
+          temperature: 0.7,
+          model: 'gpt-4'
+        }
+      },
+      settings: {
+        timeout: 30000, // 30 secondi
+        retryAttempts: 3,
+        fallbackEnabled: true
+      },
+      // Placeholder per configurazioni specifiche dell'agente
+      // Queste possono essere estese con validazione e persistenza
+      customSettings: {}
+    };
+
+    // Log per debug - da rimuovere in produzione
+    console.log(`[ProjectBriefAgent] Configurazione caricata per ${agentName}:`, baseConfig);
+
+    return baseConfig;
   }
 }
 

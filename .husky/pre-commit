@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run linting
+echo "🔍 Running ESLint..."
+npm run lint
+
+# Run Prettier check
+echo "💅 Checking Prettier formatting..."
+npm run format:check
+
+# Run tests
+echo "🧪 Running tests..."
+npm run test
+
+# Build check
+echo "🔨 Checking build..."
+npm run build

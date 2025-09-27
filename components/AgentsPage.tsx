@@ -8,6 +8,7 @@ import DocumentationToolManager from './agent-editor/DocumentationToolManager';
 
 interface AgentsPageProps {
   onNavigate: (page: Page) => void;
+  selectedAgentName?: AgentName | null;
 }
 
 const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => void }> = ({ label, isActive, onClick }) => (
@@ -24,8 +25,7 @@ const TabButton: React.FC<{ label: string; isActive: boolean; onClick: () => voi
 );
 
 
-const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
-  const [selectedAgentName, setSelectedAgentName] = useState<AgentName | null>(null);
+const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate, selectedAgentName }) => {
   const [key, setKey] = useState(Date.now()); // Used to force-remount library to show "EDITED"
   const [activeTab, setActiveTab] = useState<'workflow' | 'tools'>('workflow');
   const [isDocManagerOpen, setIsDocManagerOpen] = useState(false);
@@ -33,11 +33,6 @@ const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
   const handleConfigChange = () => {
     // Force a re-render of the library to show "EDITED" status
     setKey(Date.now());
-  };
-  
-  const handleSelectAgentAndSwitch = (agentName: AgentName) => {
-    setSelectedAgentName(agentName);
-    setActiveTab('workflow');
   };
 
   return (
@@ -70,28 +65,28 @@ const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
 
       {activeTab === 'workflow' && (
         <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
-          
-          {/* Left Column: Agent Library */}
-          <div className="lg:col-span-3 lg:h-full min-h-0">
-             <AgentLibrary 
+
+          {/* Left Column: Agent Library - Hidden in single agent view */}
+          <div className="lg:col-span-3 lg:h-full min-h-0 hidden lg:block">
+             <AgentLibrary
                key={key}
-               selectedAgentName={selectedAgentName} 
-               onSelectAgent={setSelectedAgentName} 
+               selectedAgentName={selectedAgentName}
+               onSelectAgent={() => {}} // Disabled in single agent view
               />
           </div>
-          
+
           {/* Center Column: Workflow Visualization */}
-          <div className="lg:col-span-5 lg:h-full min-h-0">
-            <WorkflowVisualizer 
+          <div className="lg:col-span-8 lg:h-full min-h-0">
+            <WorkflowVisualizer
               selectedAgentName={selectedAgentName}
-              onSelectAgent={setSelectedAgentName} 
+              onSelectAgent={() => {}} // Disabled in single agent view
             />
           </div>
-          
+
           {/* Right Column: Configuration Panel */}
           <div className="lg:col-span-4 lg:h-full min-h-0">
              {selectedAgentName ? (
-                <ConfigurationPanel 
+                <ConfigurationPanel
                   key={selectedAgentName}
                   agentName={selectedAgentName}
                   onConfigChange={handleConfigChange}
@@ -109,8 +104,11 @@ const AgentsPage: React.FC<AgentsPageProps> = ({ onNavigate }) => {
 
       {activeTab === 'tools' && (
          <div className="flex-grow min-h-0">
-            <ToolsDashboard 
-                onSelectAgent={handleSelectAgentAndSwitch} 
+            <ToolsDashboard
+                onSelectAgent={(agentName) => {
+                  // Navigate back to agents overview to select agent
+                  onNavigate('agents');
+                }}
                 onManageDocs={() => setIsDocManagerOpen(true)}
             />
          </div>

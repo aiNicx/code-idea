@@ -4,18 +4,19 @@ import IdeaForm from './components/IdeaForm';
 import ProcessingStatus from './components/ProcessingStatus';
 import ResultDisplay from './components/ResultDisplay';
 import AgentsPage from './components/AgentsPage';
-import { developIdea } from './src/services/aiService';
-import { aiService } from './src/services/aiService';
+import AgentOverviewPage from './components/AgentOverviewPage';
+import { developIdea, aiService } from './src/services';
 import { ProcessingState } from './types';
-import type { ProgressUpdate, TechStack, DevelopedIdea, DocumentType, Page } from './types';
+import type { ProgressUpdate, TechStack, DevelopedIdea, DocumentType, Page, AgentName } from './types';
 
 const App: React.FC = () => {
   const [page, setPage] = useState<Page>('home');
+  const [selectedAgent, setSelectedAgent] = useState<AgentName | null>(null);
   const [processingState, setProcessingState] = useState<ProcessingState>(ProcessingState.IDLE);
-  const [progress, setProgress] = useState<ProgressUpdate>({ 
-    agentTasks: [], 
-    currentIteration: 0, 
-    totalIterations: 1, 
+  const [progress, setProgress] = useState<ProgressUpdate>({
+    agentTasks: [],
+    currentIteration: 0,
+    totalIterations: 1,
     currentTaskDescription: '',
     currentAgent: 'OrchestratorAgent'
   });
@@ -24,6 +25,10 @@ const App: React.FC = () => {
 
   const handleNavigate = useCallback((targetPage: Page) => {
     setPage(targetPage);
+    // Reset selected agent when navigating away from agents page
+    if (targetPage !== 'agents') {
+      setSelectedAgent(null);
+    }
   }, []);
 
   const handleProgress = useCallback((progressUpdate: ProgressUpdate) => {
@@ -75,7 +80,15 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     if (page === 'agents') {
-      return <AgentsPage onNavigate={handleNavigate} />;
+      // Show overview if no agent selected, otherwise show configuration
+      return selectedAgent ? (
+        <AgentsPage onNavigate={handleNavigate} selectedAgentName={selectedAgent} />
+      ) : (
+        <AgentOverviewPage
+          onNavigate={handleNavigate}
+          onSelectAgent={setSelectedAgent}
+        />
+      );
     }
     
     switch (processingState) {
